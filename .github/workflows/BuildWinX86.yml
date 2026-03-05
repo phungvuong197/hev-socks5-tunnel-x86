@@ -1,0 +1,29 @@
+name: Build-Win32-Manual
+on: workflow_dispatch
+
+jobs:
+  build-win32:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Lay code va submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: 2. Cai dat bo compiler MinGW
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mingw-w64 make
+
+      - name: 3. Tien hanh build (Sửa lỗi arpa/inet.h)
+        run: |
+          # Them SYSTEM=windows de project biet dang build cho Win
+          make CROSS_PREFIX=i686-w64-mingw32- SYSTEM=windows LDFLAGS="-static"
+          mkdir final_build
+          mv hev-socks5-tunnel.exe final_build/
+
+      - name: 4. Day file len de ban tai ve
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hev-Tunnel-Win10-32bit
+          path: final_build/
